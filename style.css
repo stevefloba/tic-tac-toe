@@ -1,15 +1,51 @@
-table {
-    border-collapse: collapse;
-    margin: 20px auto;
+body {
+    background-color: #323232;
+    font-family: 'Open Sans', sans-serif;
+    display: flex;
+    flex-direction: column; /* Überschrift über der Tabelle */
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
 }
 
+/* Überschrift */
+h1 {
+    color: white;
+    font-size: 48px;
+    margin-bottom: 40px;
+    letter-spacing: 2px;
+}
+
+/* Tabelle */
+table {
+    border-collapse: collapse;
+}
+
+/* Tabellenzellen */
 td {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     text-align: center;
     vertical-align: middle;
-    border: 2px solid #333;
-    font-size: 48px;
-    font-family: Arial, sans-serif;
-    cursor: pointer;
+    font-size: 64px;
+    color: white;
+    border: 5px solid white;
+}
+
+/* Nur innere Linien anzeigen */
+tr:first-child td {
+    border-top: none;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+td:first-child {
+    border-left: none;
+}
+
+td:last-child {
+    border-right: none;
 }
