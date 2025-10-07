@@ -18,6 +18,21 @@ h1 {
     letter-spacing: 2px;
 }
 
+#current-player {
+    color: white;
+    font-size: 24px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Symbol für aktuellen Spieler zentrieren */
+#player-symbol svg {
+    width: 30px;
+    height: 30px;
+}
+
 /* Tabelle */
 table {
     border-collapse: collapse;

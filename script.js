@@ -5,6 +5,7 @@ let winningCombo = null;
 
 function init() {
     render();
+    updateCurrentPlayer();
 }
 
 function render() {
@@ -36,21 +37,24 @@ function render() {
 
     tableHTML += '</table><div id="win-line"></div></div>';
 
-    // Zeige Reset-Button, wenn Spiel vorbei oder unentschieden
+    // Reset-Button
     if (gameOver || checkDraw()) {
         tableHTML += `
-        <div id="reset-btn-container">
-            <button id="reset-btn" class="zoom-in" onclick="restartGame()">Neustart</button>
-        </div>
-    `;
+            <div id="reset-btn-container">
+                <button id="reset-btn" class="zoom-in" onclick="restartGame()">Neustart</button>
+            </div>
+        `;
     }
 
     contentDiv.innerHTML = tableHTML;
 
-    // Falls es eine Gewinnlinie gibt, zeichne sie erneut
+    // Gewinnlinie erneut zeichnen, wenn es einen Gewinner gibt
     if (winningCombo) {
         drawWinningLine(winningCombo);
     }
+
+    // Aktuellen Spieler aktualisieren
+    updateCurrentPlayer();
 }
 
 function handleClick(index, cell) {
@@ -77,15 +81,17 @@ function handleClick(index, cell) {
     } else if (checkDraw()) {
         gameOver = true;
         winningCombo = null;
-        setTimeout(() => render(), 500);
+        setTimeout(() => render(), 500); // Button bei Unentschieden
     }
+
+    updateCurrentPlayer();
 }
 
 function checkGameOver() {
     const winningCombinations = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Reihen
-        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Spalten
-        [0, 4, 8], [2, 4, 6]             // Diagonalen
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
     ];
 
     for (const combo of winningCombinations) {
@@ -104,15 +110,9 @@ function checkDraw() {
 function drawWinningLine(combo) {
     const line = document.getElementById('win-line');
     const positions = {
-        0: { x: 0, y: 0 },
-        1: { x: 1, y: 0 },
-        2: { x: 2, y: 0 },
-        3: { x: 0, y: 1 },
-        4: { x: 1, y: 1 },
-        5: { x: 2, y: 1 },
-        6: { x: 0, y: 2 },
-        7: { x: 1, y: 2 },
-        8: { x: 2, y: 2 }
+        0: { x: 0, y: 0 }, 1: { x: 1, y: 0 }, 2: { x: 2, y: 0 },
+        3: { x: 0, y: 1 }, 4: { x: 1, y: 1 }, 5: { x: 2, y: 1 },
+        6: { x: 0, y: 2 }, 7: { x: 1, y: 2 }, 8: { x: 2, y: 2 }
     };
 
     const start = positions[combo[0]];
@@ -139,16 +139,31 @@ function restartGame() {
     currentShape = 'circle';
     gameOver = false;
     winningCombo = null;
-    render();
+    render(); // ruft automatisch updateCurrentPlayer() auf
+}
+
+function updateCurrentPlayer() {
+    const playerSpan = document.getElementById('player-symbol');
+    if (!playerSpan) return;
+
+    // Wenn das Spiel vorbei ist, Spieleranzeige ausblenden
+    if (gameOver) {
+        playerSpan.innerHTML = '';
+        return;
+    }
+
+    if (currentShape === 'circle') {
+        playerSpan.innerHTML = generateCircleSVGSmall();
+    } else {
+        playerSpan.innerHTML = generateCrossSVGSmall();
+    }
 }
 
 function generateCircleSVG() {
     return `
         <div class="symbol-container">
             <svg width="70" height="70" viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
-                <circle 
-                    cx="35" cy="35" r="30" 
-                    stroke="#00B0EF" stroke-width="8" fill="none"
+                <circle cx="35" cy="35" r="30" stroke="#00B0EF" stroke-width="8" fill="none"
                     stroke-dasharray="188.4" stroke-dashoffset="188.4">
                     <animate attributeName="stroke-dashoffset" from="188.4" to="0" dur="1s" fill="freeze" />
                 </circle>
@@ -161,18 +176,33 @@ function generateCrossSVG() {
     return `
         <div class="symbol-container">
             <svg width="70" height="70" viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
-                <line x1="15" y1="15" x2="55" y2="55"
-                    stroke="#FFC000" stroke-width="8" stroke-linecap="round"
+                <line x1="15" y1="15" x2="55" y2="55" stroke="#FFC000" stroke-width="8" stroke-linecap="round"
                     stroke-dasharray="56.57" stroke-dashoffset="56.57">
                     <animate attributeName="stroke-dashoffset" from="56.57" to="0" dur="0.6s" fill="freeze" />
                 </line>
-                <line x1="55" y1="15" x2="15" y2="55"
-                    stroke="#FFC000" stroke-width="8" stroke-linecap="round"
+                <line x1="55" y1="15" x2="15" y2="55" stroke="#FFC000" stroke-width="8" stroke-linecap="round"
                     stroke-dasharray="56.57" stroke-dashoffset="56.57">
-                    <animate attributeName="stroke-dashoffset" from="56.57" to="0" dur="0.6s" fill="freeze" begin="0.3s" />
+                    <animate attributeName="stroke-dashoffset" from="56.57" to="0" dur="0.6s" fill="freeze"
+                        begin="0.3s" />
                 </line>
             </svg>
         </div>
     `;
 }
 
+function generateCircleSVGSmall() {
+    return `
+        <svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="35" cy="35" r="30" stroke="#00B0EF" stroke-width="8" fill="none" />
+        </svg>
+    `;
+}
+
+function generateCrossSVGSmall() {
+    return `
+        <svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
+            <line x1="15" y1="15" x2="55" y2="55" stroke="#FFC000" stroke-width="8" stroke-linecap="round"/>
+            <line x1="55" y1="15" x2="15" y2="55" stroke="#FFC000" stroke-width="8" stroke-linecap="round"/>
+        </svg>
+    `;
+}
