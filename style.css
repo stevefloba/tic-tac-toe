@@ -54,3 +54,22 @@ td:first-child {
 td:last-child {
     border-right: none;
 }
+
+.board-container {
+    position: relative;
+    display: inline-block;
+}
+
+#win-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.win-svg {
+    width: 100%;
+    height: 100%;
+}

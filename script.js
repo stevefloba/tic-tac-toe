@@ -10,7 +10,8 @@ let fields = [
     null
 ];
 
-let currentShape = 'circle'; // Startspieler: Kreis
+let currentShape = 'circle';
+let gameOver = false;
 
 function init() {
     render();
@@ -18,8 +19,7 @@ function init() {
 
 function render() {
     const contentDiv = document.getElementById('content');
-
-    let tableHTML = '<table>';
+    let tableHTML = '<div class="board-container"><table>';
 
     for (let i = 0; i < 3; i++) {
         tableHTML += '<tr>';
@@ -30,13 +30,11 @@ function render() {
             let symbolHTML = '';
             let clickHandler = '';
 
-            // Wenn Feld belegt ist → Symbol anzeigen
             if (field === 'circle') {
                 symbolHTML = generateCircleSVG();
             } else if (field === 'cross') {
                 symbolHTML = generateCrossSVG();
-            } else {
-                // Wenn leer → Klickfunktion aktivieren
+            } else if (!gameOver) {
                 clickHandler = `onclick="handleClick(${index}, this)"`;
             }
 
@@ -45,27 +43,85 @@ function render() {
         tableHTML += '</tr>';
     }
 
-    tableHTML += '</table>';
+    tableHTML += '</table><div id="win-line"></div></div>';
     contentDiv.innerHTML = tableHTML;
 }
 
 function handleClick(index, cell) {
-    // Nur reagieren, wenn das Feld noch leer ist
-    if (!fields[index]) {
-        fields[index] = currentShape;
+    if (gameOver || fields[index]) return;
 
-        // Setze SVG im geklickten Feld
-        if (currentShape === 'circle') {
-            cell.innerHTML = generateCircleSVG();
-            currentShape = 'cross'; // Nächster Spieler
-        } else {
-            cell.innerHTML = generateCrossSVG();
-            currentShape = 'circle';
-        }
+    fields[index] = currentShape;
 
-        // Klick-Event für dieses Feld deaktivieren
-        cell.onclick = null;
+    if (currentShape === 'circle') {
+        cell.innerHTML = generateCircleSVG();
+        currentShape = 'cross';
+    } else {
+        cell.innerHTML = generateCrossSVG();
+        currentShape = 'circle';
     }
+
+    cell.onclick = null; // deaktiviert den Klick auf dieses Feld
+
+    const winnerCombo = checkGameOver();
+    if (winnerCombo) {
+        gameOver = true;
+        drawWinningLine(winnerCombo);
+    }
+}
+
+function checkGameOver() {
+    const winningCombinations = [
+        [0, 1, 2], // Zeilen
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6], // Spalten
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8], // Diagonalen
+        [2, 4, 6]
+    ];
+
+    for (const combo of winningCombinations) {
+        const [a, b, c] = combo;
+        if (fields[a] && fields[a] === fields[b] && fields[a] === fields[c]) {
+            return combo; // Gewinner gefunden
+        }
+    }
+    return null; // kein Gewinn
+}
+
+function drawWinningLine(combo) {
+    const line = document.getElementById('win-line');
+    const positions = {
+        0: { x: 0, y: 0 },
+        1: { x: 1, y: 0 },
+        2: { x: 2, y: 0 },
+        3: { x: 0, y: 1 },
+        4: { x: 1, y: 1 },
+        5: { x: 2, y: 1 },
+        6: { x: 0, y: 2 },
+        7: { x: 1, y: 2 },
+        8: { x: 2, y: 2 }
+    };
+
+    const start = positions[combo[0]];
+    const end = positions[combo[2]];
+
+    // Linie in Prozentwerten, damit sie sich anpasst
+    const x1 = start.x * 33.33 + 16.66;
+    const y1 = start.y * 33.33 + 16.66;
+    const x2 = end.x * 33.33 + 16.66;
+    const y2 = end.y * 33.33 + 16.66;
+
+    line.innerHTML = `
+        <svg class="win-svg" viewBox="0 0 100 100">
+            <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"
+                stroke="white" stroke-width="4" stroke-linecap="round">
+                <animate attributeName="x2" from="${x1}" to="${x2}" dur="0.5s" fill="freeze" />
+                <animate attributeName="y2" from="${y1}" to="${y2}" dur="0.5s" fill="freeze" />
+            </line>
+        </svg>
+    `;
 }
 
 function generateCircleSVG() {
