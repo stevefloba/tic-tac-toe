@@ -1,0 +1,15 @@
+table {
+    border-collapse: collapse;
+    margin: 20px auto;
+}
+
+td {
+    width: 80px;
+    height: 80px;
+    text-align: center;
+    vertical-align: middle;
+    border: 2px solid #333;
+    font-size: 48px;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+}
