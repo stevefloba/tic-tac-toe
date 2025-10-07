@@ -1,17 +1,19 @@
 let fields = [
     null,
     null,
-    'circle',
     null,
     null,
     null,
-    'cross',
+    null,
+    null,
     null,
     null
 ];
 
+let currentShape = 'circle'; // Startspieler: Kreis
+
 function init() {
-    render()
+    render();
 }
 
 function render() {
@@ -25,21 +27,45 @@ function render() {
             const index = i * 3 + j;
             const field = fields[index];
 
-            let symbol = '';
+            let symbolHTML = '';
+            let clickHandler = '';
+
+            // Wenn Feld belegt ist → Symbol anzeigen
             if (field === 'circle') {
-                symbol = generateCircleSVG();
+                symbolHTML = generateCircleSVG();
             } else if (field === 'cross') {
-                symbol = generateCrossSVG();
+                symbolHTML = generateCrossSVG();
+            } else {
+                // Wenn leer → Klickfunktion aktivieren
+                clickHandler = `onclick="handleClick(${index}, this)"`;
             }
 
-            tableHTML += `<td>${symbol}</td>`;
+            tableHTML += `<td ${clickHandler}>${symbolHTML}</td>`;
         }
         tableHTML += '</tr>';
     }
 
     tableHTML += '</table>';
-
     contentDiv.innerHTML = tableHTML;
+}
+
+function handleClick(index, cell) {
+    // Nur reagieren, wenn das Feld noch leer ist
+    if (!fields[index]) {
+        fields[index] = currentShape;
+
+        // Setze SVG im geklickten Feld
+        if (currentShape === 'circle') {
+            cell.innerHTML = generateCircleSVG();
+            currentShape = 'cross'; // Nächster Spieler
+        } else {
+            cell.innerHTML = generateCrossSVG();
+            currentShape = 'circle';
+        }
+
+        // Klick-Event für dieses Feld deaktivieren
+        cell.onclick = null;
+    }
 }
 
 function generateCircleSVG() {
@@ -108,4 +134,3 @@ function generateCrossSVG() {
         </svg>
     `;
 }
-
